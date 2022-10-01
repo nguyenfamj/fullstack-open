@@ -21,16 +21,23 @@ const App = () => {
 
 const Statistics = ({ good, neutral, bad }) => {
   const all = good + neutral + bad;
-
+  if (good || neutral || bad) {
+    return (
+      <div>
+        <h2>Statistics</h2>
+        <p>Good {good}</p>
+        <p>Neutral {neutral}</p>
+        <p>Bad {bad}</p>
+        <p>All {all}</p>
+        <p>Average {all / 3}</p>
+        <p>Positive {(good / all) * 100}%</p>
+      </div>
+    );
+  }
   return (
     <div>
       <h2>Statistics</h2>
-      <p>Good {good}</p>
-      <p>Neutral {neutral}</p>
-      <p>Bad {bad}</p>
-      <p>All {all}</p>
-      <p>Average {all / 3}</p>
-      <p>Positive {(good / all) * 100}%</p>
+      <p>No feedback given</p>
     </div>
   );
 };
