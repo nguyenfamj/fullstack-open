@@ -23,13 +23,22 @@ const App = () => {
     newPoints[selected] += 1;
     setPoints(newPoints);
   };
+  const maxIndex = points.indexOf(Math.max(...points));
 
   return (
     <>
-      <div>{anecdotes[selected]}</div>
-      <p>Has {points[selected]} votes</p>
-      <button onClick={handleChangeText}>Next anecdote</button>
-      <button onClick={handleVote}>Vote</button>
+      <div>
+        <h2>Anecdote of the day</h2>
+        <div>{anecdotes[selected]}</div>
+        <p>Has {points[selected]} votes</p>
+        <button onClick={handleVote}>Vote</button>
+        <button onClick={handleChangeText}>Next anecdote</button>
+      </div>
+      <div>
+        <h2>Anecdote with most votes</h2>
+        <div>{anecdotes[maxIndex]}</div>
+        <p>Has {points[maxIndex]} votes</p>
+      </div>
     </>
   );
 };
