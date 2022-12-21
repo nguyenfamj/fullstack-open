@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import NameFilter from './components/NameFilter';
+import PersonForm from './components/PersonForm';
+import Persons from './components/Persons';
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -39,38 +42,17 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <div style={{ marginBottom: 20 }}>
-        <input
-          type='text'
-          value={searchTerm}
-          onChange={onSearchTermChange}
-          placeholder='Search people'
-        />
-      </div>
-      <form>
-        <div>
-          name: <input value={newName} onChange={onInputNameChange} />
-        </div>
-        <div>
-          number: <input value={newNumber} onChange={onInputNumberChange} />
-        </div>
-        <div>
-          <button type='submit' onClick={onAddNewName}>
-            add
-          </button>
-        </div>
-      </form>
+      <NameFilter searchTerm={searchTerm} onSearchTermChange={onSearchTermChange} />
+      <h3>Add a new contact</h3>
+      <PersonForm
+        newName={newName}
+        newNumber={newNumber}
+        onInputNameChange={onInputNameChange}
+        onInputNumberChange={onInputNumberChange}
+        onAddNewName={onAddNewName}
+      />
       <h2>Numbers</h2>
-      {persons
-        .filter((person) => {
-          return person.name.toLowerCase().includes(searchTerm.toLowerCase());
-        })
-        .map((person, index) => (
-          <div key={index} style={{ display: 'flex' }}>
-            <div>{person.name}</div>
-            <div style={{ marginLeft: 10 }}>{person.phone}</div>
-          </div>
-        ))}
+      <Persons persons={persons} searchTerm={searchTerm} />
     </div>
   );
 };
