@@ -1,10 +1,10 @@
 import React from 'react';
 
-const Person = ({ name, phone }) => {
+const Person = ({ name, number }) => {
   return (
     <div style={{ display: 'flex' }}>
       <div>{name}</div>
-      <div style={{ marginLeft: 10 }}>{phone}</div>
+      <div style={{ marginLeft: 10 }}>{number}</div>
     </div>
   );
 };
