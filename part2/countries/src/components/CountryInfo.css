@@ -1,0 +1,20 @@
+.country-info {
+  margin-top: 10px;
+}
+
+.country-flag {
+  margin-top: 10px;
+  border-radius: 20px;
+  width: 250px;
+}
+
+.info-wrapper {
+  margin-top: 10px;
+}
+
+.flex-box {
+  width: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
