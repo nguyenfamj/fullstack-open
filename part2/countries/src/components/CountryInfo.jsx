@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './CountryInfo.css';
 
 const CountryInfo = ({ country, detailed }) => {
+  const [isShowed, setIsShowed] = useState(false);
+
   console.log(country.name.common);
-  return detailed ? (
-    <div>
+  return detailed || isShowed ? (
+    <div className='mt-20'>
       <h1>{country.name.common}</h1>
 
       <img src={country.flags.png} alt='' className='country-flag' />
@@ -41,8 +43,9 @@ const CountryInfo = ({ country, detailed }) => {
       </div>
     </div>
   ) : (
-    <div className='country-info'>
+    <div className='country-info flex-box'>
       <div>{country.name.common}</div>
+      <button onClick={() => setIsShowed(!isShowed)}>Show</button>
     </div>
   );
 };
