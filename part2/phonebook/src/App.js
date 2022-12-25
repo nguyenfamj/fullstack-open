@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import NameFilter from './components/NameFilter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
+import { createPerson, getPersons } from './service/contactCRUD';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -30,7 +30,11 @@ const App = () => {
       alert(`${newName} is already added to phonebook`);
       return;
     }
-    setPersons(persons.concat({ name: newName, number: newNumber }));
+    const newPerson = { name: newName, number: newNumber };
+
+    createPerson(newPerson).then((response) => console.log(response));
+
+    setPersons(persons.concat(newPerson));
     setNewName('');
     setNewNumber('');
   };
@@ -38,10 +42,8 @@ const App = () => {
   useEffect(() => {
     console.log('re-render');
 
-    axios.get('http://localhost:3001/persons').then((response) => {
-      console.log(response);
-
-      setPersons(response.data);
+    getPersons().then((fetchedPersons) => {
+      setPersons(fetchedPersons);
     });
   }, []);
 

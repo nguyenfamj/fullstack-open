@@ -8,7 +8,7 @@ const Persons = ({ persons, searchTerm }) => {
         .filter((person) => {
           return person.name.toLowerCase().includes(searchTerm.toLowerCase());
         })
-        .map((person, index) => (
+        .map((person) => (
           <Person key={person.id} name={person.name} number={person.number} />
         ))}
     </>
