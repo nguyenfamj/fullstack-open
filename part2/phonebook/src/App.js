@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import NameFilter from './components/NameFilter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
-import { createPerson, getPersons } from './service/contactCRUD';
+import { createPerson, getPersons, updatePerson } from './service/contactCRUD';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -27,8 +27,21 @@ const App = () => {
 
   const onAddNewName = (event) => {
     event.preventDefault();
-    if (persons.find((person) => person.name.toLowerCase() === newName.toLowerCase())) {
-      alert(`${newName} is already added to phonebook`);
+    const foundPerson = persons.find(
+      (person) => person.name.toLowerCase() === newName.toLowerCase()
+    );
+    if (foundPerson) {
+      const confirmation = window.confirm(
+        `${newName} is already added to phonebook, do you want to replace the old number with the new one?`
+      );
+
+      if (confirmation) {
+        const updatedPerson = { name: foundPerson.name, number: newNumber };
+
+        updatePerson(foundPerson.id, updatedPerson).then((response) => console.log(response));
+        setRefetch((prevState) => prevState + 1);
+      }
+
       return;
     }
     const newPerson = { name: newName, number: newNumber };
