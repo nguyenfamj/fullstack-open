@@ -9,6 +9,7 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [refetch, setRefetch] = useState(0);
 
   console.log(searchTerm);
 
@@ -34,7 +35,7 @@ const App = () => {
 
     createPerson(newPerson).then((response) => console.log(response));
 
-    setPersons(persons.concat(newPerson));
+    setRefetch(refetch + 1);
     setNewName('');
     setNewNumber('');
   };
@@ -45,7 +46,7 @@ const App = () => {
     getPersons().then((fetchedPersons) => {
       setPersons(fetchedPersons);
     });
-  }, []);
+  }, [refetch]);
 
   return (
     <div>
@@ -60,7 +61,7 @@ const App = () => {
         onAddNewName={onAddNewName}
       />
       <h2>Numbers</h2>
-      <Persons persons={persons} searchTerm={searchTerm} />
+      <Persons persons={persons} searchTerm={searchTerm} setRefetch={setRefetch} />
     </div>
   );
 };
