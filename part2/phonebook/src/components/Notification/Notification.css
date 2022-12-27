@@ -1,0 +1,16 @@
+.message-box {
+  padding: 15px;
+  margin-bottom: 10px;
+  max-width: fit-content;
+  border-radius: 10px;
+}
+
+.success-true {
+  background-color: #4f9f6f;
+  color: white;
+}
+
+.success-false {
+  background-color: #bd3939;
+  color: white;
+}

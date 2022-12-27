@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import NameFilter from './components/NameFilter';
+import Notification from './components/Notification/Notification';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
 import { createPerson, getPersons, updatePerson } from './service/contactCRUD';
@@ -10,6 +11,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [refetch, setRefetch] = useState(0);
+  const [messageBox, setMessageBox] = useState({ message: null, success: true });
 
   console.log(searchTerm);
 
@@ -25,6 +27,12 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
+  const handleMessageDelay = (message, success) => {
+    setTimeout(() => {
+      setMessageBox({ message, success });
+    }, 1000);
+  };
+
   const onAddNewName = (event) => {
     event.preventDefault();
     const foundPerson = persons.find(
@@ -38,7 +46,9 @@ const App = () => {
       if (confirmation) {
         const updatedPerson = { name: foundPerson.name, number: newNumber };
 
-        updatePerson(foundPerson.id, updatedPerson).then((response) => console.log(response));
+        updatePerson(foundPerson.id, updatedPerson).then((response) => {
+          handleMessageDelay(`Number of ${foundPerson.name} changed successfully`, true);
+        });
         setRefetch((prevState) => prevState + 1);
       }
 
@@ -46,8 +56,9 @@ const App = () => {
     }
     const newPerson = { name: newName, number: newNumber };
 
-    createPerson(newPerson).then((response) => console.log(response));
-
+    createPerson(newPerson).then((response) => {
+      handleMessageDelay(`Number of ${newPerson.name} added successfully`, true);
+    });
     setRefetch(refetch + 1);
     setNewName('');
     setNewNumber('');
@@ -64,6 +75,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification {...messageBox} />
       <NameFilter searchTerm={searchTerm} onSearchTermChange={onSearchTermChange} />
       <h3>Add a new contact</h3>
       <PersonForm
@@ -74,7 +86,12 @@ const App = () => {
         onAddNewName={onAddNewName}
       />
       <h2>Numbers</h2>
-      <Persons persons={persons} searchTerm={searchTerm} setRefetch={setRefetch} />
+      <Persons
+        persons={persons}
+        searchTerm={searchTerm}
+        setRefetch={setRefetch}
+        handleMessageDelay={handleMessageDelay}
+      />
     </div>
   );
 };

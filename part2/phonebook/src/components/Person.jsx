@@ -1,11 +1,15 @@
 import React from 'react';
 import { deletePerson } from '../service/contactCRUD';
 
-const Person = ({ name, number, personId, setRefetch }) => {
+const Person = ({ name, number, personId, setRefetch, handleMessageDelay }) => {
   const onDeleteButton = () => {
-    deletePerson(personId).then((response) => {
-      console.log(response);
-    });
+    deletePerson(personId)
+      .then((response) => {
+        handleMessageDelay(`Person ${name} deleted successfully`, true);
+      })
+      .catch((error) => {
+        handleMessageDelay(`Person ${name} has been removed from the server or not exists`, false);
+      });
 
     setRefetch((prevState) => prevState + 1);
   };
