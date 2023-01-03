@@ -13,7 +13,7 @@ const App = () => {
   const [refetch, setRefetch] = useState(0);
   const [messageBox, setMessageBox] = useState({ message: null, success: true });
 
-  console.log(searchTerm);
+  console.log(persons);
 
   const onInputNameChange = (event) => {
     setNewName(event.target.value);
@@ -46,9 +46,11 @@ const App = () => {
       if (confirmation) {
         const updatedPerson = { name: foundPerson.name, number: newNumber };
 
-        updatePerson(foundPerson.id, updatedPerson).then((response) => {
-          handleMessageDelay(`Number of ${foundPerson.name} changed successfully`, true);
-        });
+        updatePerson(foundPerson.id, updatedPerson)
+          .then((response) => {
+            handleMessageDelay(`Number of ${foundPerson.name} changed successfully`, true);
+          })
+          .catch((error) => handleMessageDelay(error.response.data.error, false));
         setRefetch((prevState) => prevState + 1);
       }
 
@@ -56,9 +58,13 @@ const App = () => {
     }
     const newPerson = { name: newName, number: newNumber };
 
-    createPerson(newPerson).then((response) => {
-      handleMessageDelay(`Number of ${newPerson.name} added successfully`, true);
-    });
+    createPerson(newPerson)
+      .then((response) => {
+        handleMessageDelay(`Number of ${newPerson.name} added successfully`, true);
+      })
+      .catch((error) =>
+        handleMessageDelay(error.response.data.error || error.response.data, false)
+      );
     setRefetch(refetch + 1);
     setNewName('');
     setNewNumber('');
