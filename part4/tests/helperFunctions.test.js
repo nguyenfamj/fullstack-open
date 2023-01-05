@@ -89,21 +89,39 @@ describe('favorite blogs', () => {
   test('check most like of many blogs', () => {
     const result = listHelper.favoriteBlog(listWithManyBlogs)
 
-    console.log(result)
-
     expect(result).toEqual({
-      _id: '5a422b3a1b54a676234d17f9',
       title: 'Canonical string reduction',
       author: 'Edsger W. Dijkstra',
-      url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
       likes: 12,
-      __v: 0,
     })
   })
 
   test('check most like in the list of one blog', () => {
     const result = listHelper.favoriteBlog(listWithOneBlog)
 
-    expect(result).toEqual(listWithOneBlog[0])
+    expect(result).toEqual({
+      title: 'Go To Statement Considered Harmful',
+      author: 'Edsger W. Dijkstra',
+      likes: 5,
+    })
+  })
+})
+
+describe('most blogs', () => {
+  test('author with most blogs', () => {
+    const mostBlogsAuthor = listHelper.mostBlog(listWithManyBlogs)
+
+    expect(mostBlogsAuthor).toEqual({
+      author: 'Robert C. Martin',
+      blogs: 3,
+    })
+  })
+})
+
+describe('most likes', () => {
+  test('author with most likes', () => {
+    const mostLikesAuthor = listHelper.mostLikes(listWithManyBlogs)
+
+    expect(mostLikesAuthor).toEqual({ author: 'Edsger W. Dijkstra', likes: 17 })
   })
 })
