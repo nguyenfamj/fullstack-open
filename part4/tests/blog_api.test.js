@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
-const { deleteMany } = require('../src/models/Blog')
 const Blog = require('../src/models/Blog')
 
 const api = supertest(app)
@@ -110,6 +109,37 @@ test('in case either title or url is missing', async () => {
   const response = await api.post('/api/blogs').send(exampleBlog)
 
   expect(response.statusCode).toEqual(400)
+})
+
+test('delete single blog', async () => {
+  const exampleBlog = {
+    title: 'Go To Statement Considered Harmful',
+    author: 'Edsger W. Dijkstra',
+    url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+    likes: 20,
+  }
+  const createResponse = await api.post('/api/blogs').send(exampleBlog)
+
+  const deleteResponse = await api.delete(`/api/blogs/${createResponse.body.id}`)
+
+  expect(deleteResponse.statusCode).toEqual(204)
+})
+
+test('update blog', async () => {
+  const exampleBlog = {
+    title: 'Go To Statement Considered Harmful',
+    author: 'Edsger W. Dijkstra',
+    url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+    likes: 20,
+  }
+  const createResponse = await api.post('/api/blogs').send(exampleBlog)
+
+  const updateResponse = await (
+    await api.put(`/api/blogs/${createResponse.body.id}`)
+  ).setEncoding({ ...exampleBlog, likes: 21 })
+
+  expect(updateResponse.statusCode).toEqual(200)
+  expect(updateResponse.body.likes).toEqual(21)
 })
 
 afterAll(() => {
