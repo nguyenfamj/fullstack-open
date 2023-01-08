@@ -3,8 +3,12 @@ const cors = require('cors')
 const logger = require('./src/utils/logger')
 const { connectDB } = require('./src/utils/dbConnection')
 const morgan = require('morgan')
+const tokenExtractor = require('./src/middleware/tokenExtractor')
+const userExtractor = require('./src/middleware/userExtractor')
 // Import router
 const blogRouter = require('./src/controllers/blogController')
+const userRouter = require('./src/controllers/userController')
+const authRouter = require('./src/controllers/authController')
 
 // Middleware
 const { errorHandler } = require('./src/middleware/errorHandler')
@@ -22,8 +26,12 @@ app.use(express.json())
 morgan.token('requestBody', (req) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :requestBody'))
 
+app.use(tokenExtractor)
+
 // Setup router
-app.use('/api/blogs', blogRouter)
+app.use('/api/blogs', userExtractor, blogRouter)
+app.use('/api/users', userRouter)
+app.use('/api/auth', authRouter)
 
 // Final middleware
 app.use(errorHandler)

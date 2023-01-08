@@ -1,9 +1,11 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/Blog')
+const User = require('../models/User')
+const jwt = require('jsonwebtoken')
 
 // Get all blogs
 blogRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({})
+  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
   return response.status(200).json(blogs)
 })
 
@@ -30,17 +32,24 @@ blogRouter.get('/:id', async (request, response, next) => {
 // Create new blog
 blogRouter.post('/', async (request, response, next) => {
   const { title, author, url, likes } = request.body
+  const user = request.user
 
-  console.log(title, author, url, likes)
+  if (!user) {
+    return response.status(401).json({ error: 'Unauthorized' })
+  }
 
   if (!title || !author) {
     return response.status(400).send('Either title or author not included in the request')
   }
 
-  const newBlog = new Blog({ title, author, url, likes })
+  const newBlog = new Blog({ title, author, url, likes, user: user?._id || null })
 
   try {
     const savedBlog = await newBlog.save()
+
+    // Concat the new blog in the user
+    user.blogs = user.blogs.concat(savedBlog._id)
+    await user.save()
 
     return response.status(200).json(savedBlog)
   } catch (error) {
@@ -51,12 +60,21 @@ blogRouter.post('/', async (request, response, next) => {
 // Delete blog
 blogRouter.delete('/:id', async (request, response, next) => {
   const id = request.params.id
+  const user = request.user
+
+  console.log(request.user, request.tokenUsername)
 
   try {
-    const result = await Blog.findOneAndRemove(id)
-    console.log(`Blog ${result._id} deleted successfully`)
+    const blog = await Blog.findById(id)
 
-    return response.status(204).json(result).end()
+    if (blog.user.toString() === user._id.toString()) {
+      const deletedBlog = await Blog.findByIdAndRemove(id)
+
+      console.log(deletedBlog)
+      return response.status(200).json({ message: 'Blog deleted successfully', deletedBlog })
+    }
+
+    return response.status(403).json({ message: 'No access right' })
   } catch (error) {
     next(error)
   }

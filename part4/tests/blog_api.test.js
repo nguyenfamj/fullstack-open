@@ -2,6 +2,8 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../src/models/Blog')
+const User = require('../src/models/User')
+const bcrypt = require('bcrypt')
 
 const api = supertest(app)
 
@@ -44,8 +46,16 @@ const initialBlogs = [
   },
 ]
 
+// Helper function
+const getTokenFromSignIn = async (username, password) => {
+  const response = await api.post('/api/auth/login').send({ username, password })
+
+  return response.body.appToken
+}
+
 beforeEach(async () => {
   await Blog.deleteMany({})
+  await User.deleteMany({})
   console.log('data deleted')
 
   for (let blog of initialBlogs) {
@@ -53,6 +63,11 @@ beforeEach(async () => {
     await newBlog.save()
     console.log('saved')
   }
+
+  // Create sample user
+  const passwordHash = await bcrypt.hash('new_blog_test', 10)
+  const newUser = new User({ username: 'blog_test', name: 'blog', passwordHash })
+  await newUser.save()
 
   console.log('Blogs saved in the database')
 })
@@ -81,7 +96,14 @@ test('create new blog post', async () => {
     url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 5,
   }
-  const response = await api.post('/api/blogs').send(exampleBlog)
+
+  const token = await getTokenFromSignIn('blog_test', 'new_blog_test')
+  console.log('Hello', token)
+
+  const response = await api
+    .post('/api/blogs')
+    .send(exampleBlog)
+    .set('Authorization', `bearer ${token}`)
 
   expect(response.status).toBe(200)
   expect(response.body.title).toEqual('Go To Statement Considered Harmful')
@@ -96,7 +118,12 @@ test('verify the default value of likes property', async () => {
     author: 'Edsger W. Dijkstra',
     url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
   }
-  const response = await api.post('/api/blogs').send(exampleBlog)
+  const token = await getTokenFromSignIn('blog_test', 'new_blog_test')
+
+  const response = await api
+    .post('/api/blogs')
+    .send(exampleBlog)
+    .set('Authorization', `bearer ${token}`)
 
   expect(response.body.likes).toEqual(0)
 })
@@ -106,7 +133,11 @@ test('in case either title or url is missing', async () => {
     author: 'Edsger W. Dijkstra',
     likes: 17,
   }
-  const response = await api.post('/api/blogs').send(exampleBlog)
+  const token = await getTokenFromSignIn('blog_test', 'new_blog_test')
+  const response = await api
+    .post('/api/blogs')
+    .send(exampleBlog)
+    .set('Authorization', `bearer ${token}`)
 
   expect(response.statusCode).toEqual(400)
 })
@@ -118,11 +149,17 @@ test('delete single blog', async () => {
     url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 20,
   }
-  const createResponse = await api.post('/api/blogs').send(exampleBlog)
+  const token = await getTokenFromSignIn('blog_test', 'new_blog_test')
+  const createResponse = await api
+    .post('/api/blogs')
+    .send(exampleBlog)
+    .set('Authorization', `bearer ${token}`)
 
-  const deleteResponse = await api.delete(`/api/blogs/${createResponse.body.id}`)
+  const deleteResponse = await api
+    .delete(`/api/blogs/${createResponse.body.id}`)
+    .set('Authorization', `bearer ${token}`)
 
-  expect(deleteResponse.statusCode).toEqual(204)
+  expect(deleteResponse.statusCode).toEqual(200)
 })
 
 test('update blog', async () => {
@@ -132,14 +169,31 @@ test('update blog', async () => {
     url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 20,
   }
-  const createResponse = await api.post('/api/blogs').send(exampleBlog)
+  const token = await getTokenFromSignIn('blog_test', 'new_blog_test')
+  const createResponse = await api
+    .post('/api/blogs')
+    .send(exampleBlog)
+    .set('Authorization', `bearer ${token}`)
 
-  const updateResponse = await (
-    await api.put(`/api/blogs/${createResponse.body.id}`)
-  ).setEncoding({ ...exampleBlog, likes: 21 })
+  const updateResponse = await api
+    .put(`/api/blogs/${createResponse.body.id}`)
+    .send({ ...exampleBlog, likes: 21 })
 
   expect(updateResponse.statusCode).toEqual(200)
   expect(updateResponse.body.likes).toEqual(21)
+})
+
+test('adding blog without the token', async () => {
+  const exampleBlog = {
+    title: 'Go To Statement Considered Harmful',
+    author: 'Edsger W. Dijkstra',
+    url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+    likes: 5,
+  }
+
+  const response = await api.post('/api/blogs').send(exampleBlog)
+
+  expect(response.status).toBe(401)
 })
 
 afterAll(() => {
