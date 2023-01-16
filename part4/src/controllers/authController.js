@@ -14,7 +14,7 @@ authRouter.post('/login', async (request, response) => {
     return response.status(401).json({ error: 'Invalid username or password' })
   }
 
-  const tokenizedUser = { username: user.username, id: user._id }
+  const tokenizedUser = { username: user.username, id: user._id, name: user.name }
 
   const jwtToken = jwt.sign(tokenizedUser, process.env.JWT_SECRET, { expiresIn: 60 * 60 })
 

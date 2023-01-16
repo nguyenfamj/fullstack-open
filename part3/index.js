@@ -8,7 +8,7 @@ const { errorHandler } = require('./middleware/errorHandler')
 
 connectDB().then(() => {
   // Port
-  const SERVER_PORT = process.env.PORT || '3001'
+  const SERVER_PORT = process.env.PORT || '3003'
 
   app.listen(SERVER_PORT, () => {
     console.log(`Server running on PORT ${SERVER_PORT}`)
