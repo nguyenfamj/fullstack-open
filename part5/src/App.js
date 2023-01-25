@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react'
-import Blog from './components/Blog'
+import Blog from './components/Blog/Blog'
 import blogService from './services/blogs'
 import { login } from './services/auth'
 import Notification from './components/Notification/Notification'
+import CreateBlogForm from './components/CreateBlogForm/CreateBlogForm'
+import Togglable from './components/Togglable/Togglable'
+import axios from 'axios'
 
 const App = () => {
   // State
   const [blogs, setBlogs] = useState({
     data: [],
-    input: { title: '', author: '', url: '' },
+    // input: { title: '', author: '', url: '' },
     refetch: false,
   })
 
@@ -16,9 +19,10 @@ const App = () => {
     input: { username: '', password: '' },
     info: { appToken: '', id: '', name: '', username: '' },
   })
+  console.log(user)
 
   const [messageBox, setMessageBox] = useState({ message: null, success: true })
-  console.log(messageBox)
+
   // Effect
   useEffect(() => {
     blogService.getAll().then((fetchedBlogs) => setBlogs({ ...blogs, data: fetchedBlogs }))
@@ -26,9 +30,10 @@ const App = () => {
 
   useEffect(() => {
     try {
-      const persistedUser = window.localStorage.getItem('loggedUser')
+      const persistedUser = JSON.parse(window.localStorage.getItem('loggedUser'))
+      axios.defaults.headers.common['Authorization'] = `Bearer ${persistedUser.appToken}`
 
-      setUser({ ...user, info: JSON.parse(persistedUser) })
+      setUser({ ...user, info: persistedUser })
     } catch (error) {
       console.error(error)
     }
@@ -68,23 +73,28 @@ const App = () => {
     setUser({ ...user, info: { appToken: '', id: '', name: '', username: '' } })
   }
 
-  const handleCreateBlog = async (event) => {
-    event.preventDefault()
-    try {
-      const responseData = await blogService.createNew({
-        data: blogs.input,
-        token: user.info.appToken,
-      })
+  // const handleCreateBlog = async (event) => {
+  //   event.preventDefault()
+  //   try {
+  //     const responseData = await blogService.createNew({
+  //       data: blogs.input,
+  //       token: user.info.appToken,
+  //     })
 
-      if (responseData) {
-        setBlogs({ ...blogs, refetch: !blogs.refetch })
-      }
+  //     if (responseData) {
+  //       setBlogs({ ...blogs, refetch: !blogs.refetch })
+  //     }
 
-      handleMessageDelay(`New blog "${responseData.title} by ${responseData.author} added"`, true)
-      console.log(messageBox)
-    } catch (error) {
-      handleMessageDelay(error.response.data, false)
-    }
+  //     handleMessageDelay(`New blog "${responseData.title} by ${responseData.author} added"`, true)
+  //     console.log(messageBox)
+  //   } catch (error) {
+  //     handleMessageDelay(error.response.data, false)
+  //   }
+  // }
+
+  // Helper
+  const refetchBlogs = () => {
+    setBlogs({ ...blogs, refetch: !blogs.refetch })
   }
 
   if (!user.info?.username) {
@@ -132,52 +142,21 @@ const App = () => {
           <div>{user.info.name} logged in</div>
           <button onClick={handleLogout}>logout</button>
         </div>
-
-        <div>
-          <h2>create new</h2>
-          <form>
-            <label>
-              title:
-              <input
-                type='text'
-                value={blogs.input.title}
-                onChange={(event) =>
-                  setBlogs({ ...blogs, input: { ...blogs.input, title: event.target.value } })
-                }
-              />
-            </label>
-            <br />
-            <label>
-              author:
-              <input
-                type='text'
-                value={blogs.input.author}
-                onChange={(event) =>
-                  setBlogs({ ...blogs, input: { ...blogs.input, author: event.target.value } })
-                }
-              />
-            </label>
-            <br />
-            <label>
-              url:
-              <input
-                type='text'
-                value={blogs.input.url}
-                onChange={(event) =>
-                  setBlogs({ ...blogs, input: { ...blogs.input, url: event.target.value } })
-                }
-              />
-            </label>
-            <br />
-            <button onClick={handleCreateBlog}>Create</button>
-          </form>
-        </div>
+        <Togglable buttonLabel='Create New Blog'>
+          <CreateBlogForm
+            token={user.info.appToken}
+            refetchBlogs={refetchBlogs}
+            handleMessageDelay={handleMessageDelay}
+          />
+        </Togglable>
 
         <br />
 
-        {blogs.data.map((blog) => (
-          <Blog key={blog.id} blog={blog} />
-        ))}
+        {blogs.data
+          .sort((a, b) => b.likes - a.likes)
+          .map((blog) => (
+            <Blog key={blog.id} blog={blog} />
+          ))}
       </div>
     </>
   )

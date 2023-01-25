@@ -1,0 +1,12 @@
+.blog-container {
+  border: 1px;
+  border-color: black;
+  border-style: solid;
+  margin-top: 5px;
+}
+
+.title {
+  font-size: large;
+  font-weight: bold;
+  margin: 3px 0px;
+}
