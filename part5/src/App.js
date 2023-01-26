@@ -97,7 +97,7 @@ const App = () => {
     setBlogs({ ...blogs, refetch: !blogs.refetch })
   }
 
-  if (!user.info?.username) {
+  if (!user.info.username) {
     return (
       <div>
         <h2>Login to the application</h2>
