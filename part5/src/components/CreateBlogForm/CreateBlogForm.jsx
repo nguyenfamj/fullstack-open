@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import blogService from '../../services/blogs'
 
-const CreateBlogForm = ({ refetchBlogs, handleMessageDelay }) => {
+const CreateBlogForm = ({ refetchBlogs, handleMessageDelay, handleCreateBlogTest }) => {
   const [form, setForm] = useState({ title: '', author: '', url: '' })
 
   const handleCreateBlog = async (event) => {
@@ -28,6 +28,7 @@ const CreateBlogForm = ({ refetchBlogs, handleMessageDelay }) => {
         <label>
           title:
           <input
+            className='title-input'
             type='text'
             value={form.title}
             onChange={(event) => setForm({ ...form, title: event.target.value })}
@@ -52,7 +53,9 @@ const CreateBlogForm = ({ refetchBlogs, handleMessageDelay }) => {
           />
         </label>
         <br />
-        <button onClick={handleCreateBlog}>Create</button>
+        <button className='create-button' onClick={handleCreateBlogTest}>
+          Create
+        </button>
       </form>
     </div>
   )
