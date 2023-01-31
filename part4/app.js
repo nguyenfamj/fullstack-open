@@ -9,6 +9,7 @@ const userExtractor = require('./src/middleware/userExtractor')
 const blogRouter = require('./src/controllers/blogController')
 const userRouter = require('./src/controllers/userController')
 const authRouter = require('./src/controllers/authController')
+const testRouter = require('./src/controllers/testController')
 
 // Middleware
 const { errorHandler } = require('./src/middleware/errorHandler')
@@ -25,6 +26,11 @@ app.use(express.json())
 // Setup morgan logger
 morgan.token('requestBody', (req) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :requestBody'))
+
+if (process.env.NODE_ENV === 'test') {
+  app.use('/api/testing', testRouter)
+  console.log('Test')
+}
 
 app.use(tokenExtractor)
 

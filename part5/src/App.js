@@ -97,15 +97,17 @@ const App = () => {
     setBlogs({ ...blogs, refetch: !blogs.refetch })
   }
 
-  if (!user.info.username) {
+  if (!user.info?.username) {
     return (
       <div>
+        <h2>blogs</h2>
         <h2>Login to the application</h2>
         <Notification {...messageBox} />
         <form>
           <label>
             Username:
             <input
+              id='username'
               type='text'
               value={user.input.username}
               onChange={(event) =>
@@ -117,6 +119,7 @@ const App = () => {
           <label>
             Password:
             <input
+              id='password'
               type='password'
               value={user.input.password}
               onChange={(event) =>
@@ -125,7 +128,9 @@ const App = () => {
             />
           </label>
           <br />
-          <button onClick={handleSubmit}>Login</button>
+          <button id='login-button' onClick={handleSubmit}>
+            Login
+          </button>
         </form>
       </div>
     )
@@ -155,7 +160,7 @@ const App = () => {
         {blogs.data
           .sort((a, b) => b.likes - a.likes)
           .map((blog) => (
-            <Blog key={blog.id} blog={blog} />
+            <Blog key={blog.id} blog={blog} userId={user.info.id} />
           ))}
       </div>
     </>

@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt')
 userRouter.post('/', async (request, response, next) => {
   const { username, name, password } = request.body
 
+  console.log('password', password)
   if (!(username && name && password)) {
     return response.status(400).json({ error: 'Required information missing!' })
   }

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import './Blog.css'
 import blogService from '../../services/blogs'
 
-const Blog = ({ blog, updateLikesTest }) => {
+const Blog = ({ blog, userId }) => {
   const [blogState, setBlogState] = useState({
     title: blog.title,
     author: blog.author,
@@ -11,6 +11,8 @@ const Blog = ({ blog, updateLikesTest }) => {
     likes: blog.likes,
   })
   const [isOpen, setIsOpen] = useState(false)
+
+  console.log(blog, userId)
 
   const toggleView = (event) => {
     event.preventDefault()
@@ -55,13 +57,17 @@ const Blog = ({ blog, updateLikesTest }) => {
         <>
           <div>
             {blogState.likes} likes
-            <button className='like-button' onClick={updateLikesTest}>
+            <button className='like-button' onClick={updateLikes}>
               like
             </button>
           </div>
           <div className='blog-url'>{blogState.url}</div>
           <div className='blog-author'>{blogState.author}</div>
-          <button onClick={deleteBlog}>Delete</button>
+          {blog.user.id === userId && (
+            <button id='delete-blog-button' onClick={deleteBlog}>
+              Delete
+            </button>
+          )}
         </>
       )}
     </div>
