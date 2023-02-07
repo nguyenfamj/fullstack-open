@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import anecdotesService from '../services/anecdotes'
 
 export const getId = () => (100000 * Math.random()).toFixed(0)
 
@@ -6,28 +7,53 @@ const anecdoteSlice = createSlice({
   name: 'anecdote',
   initialState: [],
   reducers: {
-    increaseVote: (state, { payload: { id } }) => {
-      console.log(id)
-      // Find the anecdote to modify
-      const anecdoteToModify = state.find((anecdote) => anecdote.id === id)
-      const modifiedAnecdote = {
-        ...anecdoteToModify,
-        votes: anecdoteToModify.votes + 1,
-      }
-
-      return state.map((anecdote) => (anecdote.id !== id ? anecdote : modifiedAnecdote))
+    updateVote: (state, { payload: { updatedAnecdote } }) => {
+      return state.map((anecdote) =>
+        anecdote.id !== updatedAnecdote.id ? anecdote : updatedAnecdote
+      )
     },
 
-    createAnecdote: (state, { payload }) => {
-      console.log(payload)
-      state.push(payload)
+    setAnecdotes: (state, { payload }) => {
+      return payload
     },
 
-    appendAnecdotesArray: (state, { payload: { anecdotes } }) => {
-      return [...state, ...anecdotes]
+    appendAnecdote: (state, { payload: { anecdote } }) => {
+      state.push(anecdote)
     },
   },
 })
 
-export const { increaseVote, createAnecdote, appendAnecdotesArray } = anecdoteSlice.actions
+export const { updateVote, appendAnecdote, setAnecdotes } = anecdoteSlice.actions
+
+export const initializeAnecdotes = () => {
+  return async (dispatch) => {
+    const anecdotes = await anecdotesService.getAnecdotes()
+    dispatch(setAnecdotes(anecdotes))
+  }
+}
+
+export const createAnecdote = ({ content }) => {
+  return async (dispatch) => {
+    const newAnecdote = await anecdotesService.postAnecdote({ content })
+
+    dispatch(appendAnecdote({ anecdote: newAnecdote }))
+  }
+}
+
+export const increaseVote = ({ anecdote }) => {
+  return async (dispatch) => {
+    console.log(anecdote)
+    const preUpdatedAnecdote = { ...anecdote, votes: Number(anecdote.votes) + 1 }
+
+    console.log(preUpdatedAnecdote)
+
+    const updatedAnecdote = await anecdotesService.putAnecdote({
+      updatedAnecdote: preUpdatedAnecdote,
+    })
+
+    console.log(updatedAnecdote)
+    dispatch(updateVote({ updatedAnecdote }))
+  }
+}
+
 export default anecdoteSlice.reducer

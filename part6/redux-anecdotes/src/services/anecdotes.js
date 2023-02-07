@@ -8,7 +8,7 @@ const getAnecdotes = async () => {
   return response.data
 }
 
-const createAnecdote = async ({ content }) => {
+const postAnecdote = async ({ content }) => {
   const newAnecdote = { content, id: getId(), votes: 0 }
 
   const response = await axios.post(baseUrl, newAnecdote)
@@ -16,4 +16,10 @@ const createAnecdote = async ({ content }) => {
   return response.data
 }
 
-export default { getAnecdotes, createAnecdote }
+const putAnecdote = async ({ updatedAnecdote }) => {
+  const response = await axios.put(`${baseUrl}/${updatedAnecdote.id}`, updatedAnecdote)
+  console.log(response)
+  return response.data
+}
+
+export default { getAnecdotes, postAnecdote, putAnecdote }
